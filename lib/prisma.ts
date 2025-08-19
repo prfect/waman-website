@@ -6,19 +6,23 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['warn', 'error'],
+  log: ['error'],
   datasources: {
     db: {
       url: process.env.DATABASE_URL
     }
-  }
+  },
+  // Fix for prepared statement conflicts
+  errorFormat: 'minimal',
 })
 
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }
 
-// Graceful shutdown
-process.on('beforeExit', async () => {
-  await prisma.$disconnect()
-})
+// Disconnect on process exit
+if (typeof window === 'undefined') {
+  process.on('beforeExit', async () => {
+    await prisma.$disconnect()
+  })
+}

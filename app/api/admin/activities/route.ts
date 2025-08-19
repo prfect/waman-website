@@ -1,24 +1,24 @@
 // app/api/admin/activities/route.ts
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { withRetry } from '@/lib/db-utils'
 
 export async function GET() {
   try {
-    const activities = await prisma.activity.findMany({
-      include: {
-        category: true,
-        subcategory: true
-      },
-      orderBy: [
-        { category: { displayOrder: 'asc' } },
-        { displayOrder: 'asc' }
-      ]
+    const activities = await withRetry(async () => {
+      return await prisma.activity.findMany({
+        include: {
+          category: true,
+          subcategory: true
+        },
+        orderBy: { displayOrder: 'asc' }
+      })
     })
-
-    return NextResponse.json(activities)
+    
+    return Response.json(activities)
   } catch (error) {
     console.error('GET Activities error:', error)
-    return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500 })
+    return Response.json({ error: 'Failed to fetch activities' }, { status: 500 })
   }
 }
 
