@@ -128,6 +128,18 @@ const mapFields = (resource: string, data: any, toDatabase = false) => {
         message: data.message,
         status: data.status || 'nouveau'
       }
+    } else {
+      return {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        company: data.company,
+        projectType: data.projectType,
+        message: data.message,
+        status: data.status,
+        createdAt: data.createdAt,
+        updatedAt: data.updatedAt
+      }
     }
   }
 

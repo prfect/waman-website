@@ -1,5 +1,3 @@
-// Make sure your schema.prisma contains ALL these models:
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -36,17 +34,24 @@ model Project {
   achievements  String[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([category], map: "idx_projects_category")
+  @@index([featured], map: "idx_projects_featured")
+  @@index([status], map: "idx_projects_status")
 }
 
 model Partner {
-  id           Int      @id @default(autoincrement())
-  name         String
-  logo         String?
-  category     String
-  url          String?
-  active       Boolean  @default(true)
-  order        Int      @default(0)
-  createdAt    DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String
+  logo      String?
+  category  String
+  url       String?
+  active    Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([active], map: "idx_partners_active")
+  @@index([category], map: "idx_partners_category")
 }
 
 model BlogPost {
@@ -61,6 +66,10 @@ model BlogPost {
   published Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([category], map: "idx_blog_posts_category")
+  @@index([featured], map: "idx_blog_posts_featured")
+  @@index([published], map: "idx_blog_posts_published")
 }
 
 model Contact {
@@ -73,25 +82,28 @@ model Contact {
   status      String   @default("nouveau")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([status], map: "idx_contacts_status")
 }
 
 model ActivityCategory {
-  id            Int                    @id @default(autoincrement())
-  slug          String                 @unique
+  id            Int                   @id @default(autoincrement())
+  slug          String                @unique
   titleFr       String
   titleEn       String?
   descriptionFr String?
   descriptionEn String?
-  displayOrder  Int                    @default(0)
-  isActive      Boolean                @default(true)
+  displayOrder  Int                   @default(0)
+  isActive      Boolean               @default(true)
   icon          String?
   color         String?
-  createdAt     DateTime               @default(now())
-  updatedAt     DateTime               @updatedAt
-  
-  subcategories ActivitySubcategory[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
   activities    Activity[]
-  
+  subcategories ActivitySubcategory[]
+
+  @@index([isActive], map: "idx_activity_categories_active")
+  @@index([displayOrder], map: "idx_activity_categories_order")
   @@map("activity_categories")
 }
 
@@ -104,54 +116,50 @@ model ActivitySubcategory {
   descriptionEn String?
   displayOrder  Int              @default(0)
   isActive      Boolean          @default(true)
-  
   categoryId    Int
-  category      ActivityCategory @relation(fields: [categoryId], references: [id])
-  
-  activities    Activity[]
-  
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  
+  activities    Activity[]
+  category      ActivityCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([isActive], map: "idx_activity_subcategories_active")
+  @@index([categoryId], map: "idx_activity_subcategories_category")
   @@map("activity_subcategories")
 }
 
 model Activity {
-  id              Int                      @id @default(autoincrement())
-  slug            String                   @unique
-  titleFr         String
-  titleEn         String?
-  shortDescFr     String?
-  shortDescEn     String?
-  descriptionFr   String
-  descriptionEn   String?
-  
-  methodology     String?
-  deliverables    String[]
-  duration        String?
-  targetAudience  String?
-  prerequisites   String?
-  
-  technologies    String[]
-  dataTypes       String[]
-  outputFormats   String[]
-  
-  features        String[]
-  caseStudies     Json?
-  certifications  String[]
-  
-  displayOrder    Int                      @default(0)
-  isActive        Boolean                  @default(true)
-  isFeatured      Boolean                  @default(false)
-  image           String?
-  
-  categoryId      Int
-  subcategoryId   Int?
-  category        ActivityCategory         @relation(fields: [categoryId], references: [id])
-  subcategory     ActivitySubcategory?     @relation(fields: [subcategoryId], references: [id])
-  
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
-  
+  id             Int                  @id @default(autoincrement())
+  slug           String               @unique
+  titleFr        String
+  titleEn        String?
+  shortDescFr    String?
+  shortDescEn    String?
+  descriptionFr  String
+  descriptionEn  String?
+  methodology    String?
+  deliverables   String[]
+  duration       String?
+  targetAudience String?
+  prerequisites  String?
+  technologies   String[]
+  dataTypes      String[]
+  outputFormats  String[]
+  features       String[]
+  caseStudies    Json?
+  certifications String[]
+  displayOrder   Int                  @default(0)
+  isActive       Boolean              @default(true)
+  isFeatured     Boolean              @default(false)
+  image          String?
+  categoryId     Int
+  subcategoryId  Int?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  category       ActivityCategory     @relation(fields: [categoryId], references: [id])
+  subcategory    ActivitySubcategory? @relation(fields: [subcategoryId], references: [id])
+
+  @@index([isActive], map: "idx_activities_active")
+  @@index([categoryId], map: "idx_activities_category")
+  @@index([isFeatured], map: "idx_activities_featured")
   @@map("activities")
 }
