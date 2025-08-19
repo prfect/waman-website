@@ -1,4 +1,3 @@
-// components/admin/shared/AdminModal.tsx
 import React from 'react'
 import { X } from 'lucide-react'
 
@@ -20,15 +19,15 @@ export const AdminModal: React.FC<AdminModalProps> = ({
   if (!isOpen) return null
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl'
+    sm: 'md:max-w-md',
+    md: 'md:max-w-2xl',
+    lg: 'md:max-w-4xl',
+    xl: 'md:max-w-6xl'
   }
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`bg-white rounded-3xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden shadow-2xl`}>
+      <div className={`bg-white rounded-3xl max-w-full ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden shadow-2xl`}>
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
           <div className="flex justify-between items-center">

@@ -1,9 +1,8 @@
-// components/admin/shared/AdminSidebar.tsx - Fixed layout
 import React from 'react'
 import { signOut } from 'next-auth/react'
 import { 
   Monitor, Layers, BarChart3, Users, FileText, Mail, Settings, 
-  Home, LogOut, Droplets
+  Home, LogOut, Droplets, X
 } from 'lucide-react'
 
 interface AdminSidebarProps {
@@ -14,6 +13,8 @@ interface AdminSidebarProps {
   partnersCount: number
   blogCount: number
   contactsCount: number
+  mobileMenuOpen: boolean
+  closeMobileMenu: () => void
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -23,7 +24,9 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   projectsCount,
   partnersCount,
   blogCount,
-  contactsCount
+  contactsCount,
+  mobileMenuOpen,
+  closeMobileMenu
 }) => {
   const navigationItems = [
     { key: 'dashboard', label: 'Tableau de bord', icon: Monitor, color: 'text-blue-600', count: null },
@@ -42,9 +45,21 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   }
 
   return (
-    <div className="h-screen bg-white shadow-2xl border-r border-gray-200 flex flex-col">
-      {/* Header */}
-      <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-blue-700 flex-shrink-0">
+    <nav
+      className={`fixed top-0 left-0 bottom-0 z-50 w-64 md:relative md:w-64 md:z-auto bg-white border-r border-gray-100 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out transform
+        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+      `}
+    >
+      {/* Header with close button for mobile */}
+      <div className="p-6 flex items-center justify-between border-b border-gray-100 flex-shrink-0 md:hidden">
+        <h2 className="text-2xl font-bold gradient-text">Admin Panel</h2>
+        <button onClick={closeMobileMenu}>
+          <X className="w-6 h-6 text-gray-600" />
+        </button>
+      </div>
+
+      {/* Header - Desktop */}
+      <div className="hidden md:flex p-6 border-b border-gray-100 bg-gradient-to-r from-blue-600 to-blue-700 flex-shrink-0">
         <div className="flex items-center space-x-4">
           <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
             <Droplets className="w-7 h-7 text-white" />
@@ -62,7 +77,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           {navigationItems.map(item => (
             <button
               key={item.key}
-              onClick={() => setActiveTab(item.key)}
+              onClick={() => {
+                setActiveTab(item.key)
+                closeMobileMenu()
+              }}
               className={`w-full text-left px-5 py-4 flex items-center justify-between rounded-2xl transition-all duration-300 ${
                 activeTab === item.key 
                   ? 'bg-blue-50 text-blue-700 shadow-lg transform scale-105' 
@@ -108,6 +126,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </nav>
   )
 }

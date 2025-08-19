@@ -1,6 +1,6 @@
-// components/admin/WamanAdminCMS.tsx - Fixed complete version
 'use client'
 import React, { useState, useEffect } from 'react'
+import { Menu } from 'lucide-react'
 
 // Import section components
 import { AdminSidebar } from './shared/AdminSidebar'
@@ -25,6 +25,7 @@ export default function WamanAdminCMS() {
   // Main state
   const [activeTab, setActiveTab] = useState('dashboard')
   const [loading, setLoading] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
   // Modal state
   const [showModal, setShowModal] = useState(false)
@@ -398,25 +399,42 @@ export default function WamanAdminCMS() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar - Fixed width */}
-      <div className="w-72 flex-shrink-0">
-        <AdminSidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          activitiesCount={dataCounts?.activities || 0}
-          projectsCount={dataCounts?.projects || 0}
-          partnersCount={dataCounts?.partners || 0}
-          blogCount={dataCounts?.blog || 0}
-          contactsCount={dataCounts?.contacts || 0}
-        />
-      </div>
+    <div className="flex h-screen bg-gray-50 text-gray-900 overflow-hidden">
+      {/* Sidebar - Now responsive */}
+      <AdminSidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        activitiesCount={dataCounts?.activities || 0}
+        projectsCount={dataCounts?.projects || 0}
+        partnersCount={dataCounts?.partners || 0}
+        blogCount={dataCounts?.blog || 0}
+        contactsCount={dataCounts?.contacts || 0}
+        mobileMenuOpen={mobileMenuOpen}
+        closeMobileMenu={() => setMobileMenuOpen(false)}
+      />
 
-      {/* Main Content - Full remaining width */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
+      {/* Backdrop for the mobile menu */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        ></div>
+      )}
+
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1">
+        {/* Header/Navbar for mobile view */}
+        <header className="p-4 bg-white border-b border-gray-100 flex items-center justify-between md:hidden">
+          <button onClick={() => setMobileMenuOpen(true)}>
+            <Menu className="w-6 h-6 text-gray-600" />
+          </button>
+          <div className="text-xl font-bold gradient-text">WAMAN Admin</div>
+          <div></div> {/* For spacing */}
+        </header>
+
+        {/* Header - Desktop */}
+        <header className="hidden md:flex bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
+          <div className="flex items-center justify-between w-full">
             <h1 className="text-2xl font-bold text-gray-900">
               Administration Waman Consulting
             </h1>
@@ -449,6 +467,13 @@ export default function WamanAdminCMS() {
           modalType === 'partner' ? (editingItem ? 'Modifier le partenaire' : 'Nouveau partenaire') :
           modalType === 'blog' ? (editingItem ? 'Modifier l\'article' : 'Nouvel article') :
           ''
+        }
+        size={
+          modalType === 'activity' ? 'lg' :
+          modalType === 'project' ? 'lg' :
+          modalType === 'partner' ? 'md' :
+          modalType === 'blog' ? 'lg' :
+          'md'
         }
       >
         {renderModalContent()}
