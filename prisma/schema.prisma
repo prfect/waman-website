@@ -1,0 +1,157 @@
+// Make sure your schema.prisma contains ALL these models:
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Project {
+  id            Int      @id @default(autoincrement())
+  titleFr       String
+  titleEn       String?
+  descriptionFr String
+  descriptionEn String?
+  client        String
+  year          String
+  status        String
+  category      String?
+  location      String?
+  budget        String?
+  duration      String?
+  image         String?
+  featured      Boolean  @default(false)
+  achievements  String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Partner {
+  id           Int      @id @default(autoincrement())
+  name         String
+  logo         String?
+  category     String
+  url          String?
+  active       Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model BlogPost {
+  id        Int      @id @default(autoincrement())
+  titleFr   String
+  titleEn   String?
+  content   String
+  category  String
+  author    String?
+  image     String?
+  featured  Boolean  @default(false)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String
+  company     String?
+  projectType String?
+  message     String
+  status      String   @default("nouveau")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ActivityCategory {
+  id            Int                    @id @default(autoincrement())
+  slug          String                 @unique
+  titleFr       String
+  titleEn       String?
+  descriptionFr String?
+  descriptionEn String?
+  displayOrder  Int                    @default(0)
+  isActive      Boolean                @default(true)
+  icon          String?
+  color         String?
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  
+  subcategories ActivitySubcategory[]
+  activities    Activity[]
+  
+  @@map("activity_categories")
+}
+
+model ActivitySubcategory {
+  id            Int              @id @default(autoincrement())
+  slug          String           @unique
+  titleFr       String
+  titleEn       String?
+  descriptionFr String?
+  descriptionEn String?
+  displayOrder  Int              @default(0)
+  isActive      Boolean          @default(true)
+  
+  categoryId    Int
+  category      ActivityCategory @relation(fields: [categoryId], references: [id])
+  
+  activities    Activity[]
+  
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  @@map("activity_subcategories")
+}
+
+model Activity {
+  id              Int                      @id @default(autoincrement())
+  slug            String                   @unique
+  titleFr         String
+  titleEn         String?
+  shortDescFr     String?
+  shortDescEn     String?
+  descriptionFr   String
+  descriptionEn   String?
+  
+  methodology     String?
+  deliverables    String[]
+  duration        String?
+  targetAudience  String?
+  prerequisites   String?
+  
+  technologies    String[]
+  dataTypes       String[]
+  outputFormats   String[]
+  
+  features        String[]
+  caseStudies     Json?
+  certifications  String[]
+  
+  displayOrder    Int                      @default(0)
+  isActive        Boolean                  @default(true)
+  isFeatured      Boolean                  @default(false)
+  image           String?
+  
+  categoryId      Int
+  subcategoryId   Int?
+  category        ActivityCategory         @relation(fields: [categoryId], references: [id])
+  subcategory     ActivitySubcategory?     @relation(fields: [subcategoryId], references: [id])
+  
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+  
+  @@map("activities")
+}

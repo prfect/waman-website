@@ -1,0 +1,368 @@
+/* Enhanced Design System for WAMAN Consulting */
+/* Add this to your global CSS or create a new design-system.css */
+
+:root {
+  /* Enhanced WAMAN Brand Colors */
+  --waman-primary: #0c4a6e;           /* Deep blue - professional, trustworthy */
+  --waman-primary-light: #0369a1;     /* Medium blue */
+  --waman-primary-dark: #082f49;      /* Very dark blue */
+  
+  --waman-secondary: #0891b2;         /* Cyan - water/innovation */
+  --waman-secondary-light: #22d3ee;   /* Light cyan */
+  --waman-secondary-dark: #155e75;    /* Dark cyan */
+  
+  --waman-accent: #f59e0b;            /* Amber - expertise/excellence */
+  --waman-accent-light: #fbbf24;      /* Light amber */
+  --waman-accent-dark: #d97706;       /* Dark amber */
+  
+  --waman-success: #059669;           /* Green - growth/environment */
+  --waman-warning: #dc2626;           /* Red - important/urgent */
+  
+  /* Sophisticated Grays */
+  --waman-gray-50: #f8fafc;
+  --waman-gray-100: #f1f5f9;
+  --waman-gray-200: #e2e8f0;
+  --waman-gray-300: #cbd5e1;
+  --waman-gray-400: #94a3b8;
+  --waman-gray-500: #64748b;
+  --waman-gray-600: #475569;
+  --waman-gray-700: #334155;
+  --waman-gray-800: #1e293b;
+  --waman-gray-900: #0f172a;
+  
+  /* Professional Gradients */
+  --waman-gradient-primary: linear-gradient(135deg, var(--waman-primary) 0%, var(--waman-secondary) 100%);
+  --waman-gradient-hero: linear-gradient(135deg, var(--waman-primary-dark) 0%, var(--waman-primary) 50%, var(--waman-secondary) 100%);
+  --waman-gradient-accent: linear-gradient(135deg, var(--waman-accent-dark) 0%, var(--waman-accent) 100%);
+  
+  /* Shadows & Effects */
+  --waman-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --waman-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --waman-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --waman-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --waman-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --waman-shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  
+  /* Glass Effects */
+  --waman-glass-bg: rgba(255, 255, 255, 0.25);
+  --waman-glass-border: rgba(255, 255, 255, 0.18);
+  --waman-glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  
+  /* Typography */
+  --waman-font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --waman-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  
+  /* Spacing Scale */
+  --waman-space-xs: 0.5rem;   /* 8px */
+  --waman-space-sm: 0.75rem;  /* 12px */
+  --waman-space-md: 1rem;     /* 16px */
+  --waman-space-lg: 1.5rem;   /* 24px */
+  --waman-space-xl: 2rem;     /* 32px */
+  --waman-space-2xl: 3rem;    /* 48px */
+  --waman-space-3xl: 4rem;    /* 64px */
+  --waman-space-4xl: 6rem;    /* 96px */
+  
+  /* Border Radius */
+  --waman-radius-sm: 0.375rem; /* 6px */
+  --waman-radius-md: 0.5rem;   /* 8px */
+  --waman-radius-lg: 0.75rem;  /* 12px */
+  --waman-radius-xl: 1rem;     /* 16px */
+  --waman-radius-2xl: 1.5rem;  /* 24px */
+  --waman-radius-full: 9999px;
+  
+  /* Transitions */
+  --waman-transition-fast: 150ms ease-in-out;
+  --waman-transition-normal: 300ms ease-in-out;
+  --waman-transition-slow: 500ms ease-in-out;
+}
+
+/* Enhanced Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+body {
+  font-family: var(--waman-font-body);
+  background-color: var(--waman-gray-50);
+  color: var(--waman-gray-900);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Professional Button System */
+.waman-btn {
+  @apply inline-flex items-center justify-center;
+  @apply font-semibold text-center;
+  @apply border border-transparent;
+  @apply transition-all duration-300;
+  @apply focus:outline-none focus:ring-4 focus:ring-opacity-50;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  font-family: var(--waman-font-display);
+}
+
+.waman-btn-primary {
+  @apply bg-gradient-to-r from-sky-600 to-blue-600;
+  @apply text-white;
+  @apply hover:from-sky-700 hover:to-blue-700;
+  @apply focus:ring-blue-500;
+  @apply shadow-lg hover:shadow-xl;
+  @apply transform hover:-translate-y-0.5;
+}
+
+.waman-btn-secondary {
+  @apply bg-white border-2;
+  @apply text-sky-700 border-sky-200;
+  @apply hover:bg-sky-50 hover:border-sky-300;
+  @apply focus:ring-sky-500;
+  @apply shadow-md hover:shadow-lg;
+}
+
+.waman-btn-accent {
+  @apply bg-gradient-to-r from-amber-500 to-orange-500;
+  @apply text-white;
+  @apply hover:from-amber-600 hover:to-orange-600;
+  @apply focus:ring-amber-500;
+  @apply shadow-lg hover:shadow-xl;
+  @apply transform hover:-translate-y-0.5;
+}
+
+.waman-btn-sm {
+  @apply px-4 py-2 text-sm;
+  @apply rounded-lg;
+}
+
+.waman-btn-md {
+  @apply px-6 py-3 text-base;
+  @apply rounded-xl;
+}
+
+.waman-btn-lg {
+  @apply px-8 py-4 text-lg;
+  @apply rounded-2xl;
+}
+
+/* Glass Morphism Effects */
+.waman-glass {
+  background: var(--waman-glass-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--waman-glass-border);
+  box-shadow: var(--waman-glass-shadow);
+}
+
+.waman-glass-strong {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Professional Card System */
+.waman-card {
+  @apply bg-white;
+  @apply border border-gray-100;
+  @apply shadow-lg;
+  @apply transition-all duration-300;
+  border-radius: var(--waman-radius-2xl);
+}
+
+.waman-card-hover {
+  @apply hover:shadow-2xl;
+  @apply hover:-translate-y-1;
+  @apply hover:border-sky-200;
+}
+
+.waman-card-interactive {
+  @apply cursor-pointer;
+  @apply hover:shadow-2xl;
+  @apply hover:-translate-y-2;
+  @apply hover:border-sky-300;
+  @apply transform transition-all duration-500;
+}
+
+/* Enhanced Typography */
+.waman-heading {
+  font-family: var(--waman-font-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--waman-gray-900);
+}
+
+.waman-heading-xl {
+  @apply text-4xl md:text-5xl lg:text-6xl;
+  background: var(--waman-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.waman-heading-lg {
+  @apply text-3xl md:text-4xl lg:text-5xl;
+}
+
+.waman-heading-md {
+  @apply text-2xl md:text-3xl;
+}
+
+.waman-subheading {
+  @apply text-lg md:text-xl;
+  color: var(--waman-gray-600);
+  font-weight: 500;
+}
+
+/* Professional Gradients */
+.waman-gradient-text {
+  background: var(--waman-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.waman-gradient-bg {
+  background: var(--waman-gradient-hero);
+}
+
+/* Enhanced Animations */
+@keyframes waman-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes waman-slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes waman-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes waman-bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.waman-animate-fadeInUp {
+  animation: waman-fadeInUp 0.8s ease-out;
+}
+
+.waman-animate-slideInRight {
+  animation: waman-slideInRight 0.6s ease-out;
+}
+
+.waman-animate-pulse {
+  animation: waman-pulse 2s infinite;
+}
+
+.waman-animate-bounce {
+  animation: waman-bounce 1s infinite;
+}
+
+/* Professional Section Spacing */
+.waman-section {
+  @apply py-16 md:py-24 lg:py-32;
+}
+
+.waman-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Enhanced Status Indicators */
+.waman-status-success {
+  @apply bg-emerald-100 text-emerald-800 border-emerald-200;
+}
+
+.waman-status-warning {
+  @apply bg-amber-100 text-amber-800 border-amber-200;
+}
+
+.waman-status-info {
+  @apply bg-sky-100 text-sky-800 border-sky-200;
+}
+
+.waman-status-error {
+  @apply bg-red-100 text-red-800 border-red-200;
+}
+
+/* Professional Input System */
+.waman-input {
+  @apply w-full px-4 py-3;
+  @apply border-2 border-gray-200;
+  @apply rounded-xl;
+  @apply focus:ring-4 focus:ring-sky-500/20;
+  @apply focus:border-sky-500;
+  @apply transition-all duration-300;
+  @apply text-gray-900 placeholder-gray-500;
+  @apply bg-white;
+}
+
+.waman-input:focus {
+  @apply shadow-lg;
+  @apply transform scale-[1.02];
+}
+
+/* Responsive Design Utilities */
+.waman-grid-responsive {
+  @apply grid gap-6 md:gap-8 lg:gap-12;
+  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
+
+.waman-flex-responsive {
+  @apply flex flex-col lg:flex-row;
+  @apply items-start lg:items-center;
+  @apply space-y-4 lg:space-y-0 lg:space-x-8;
+}
+
+/* Professional Loading States */
+.waman-skeleton {
+  @apply bg-gray-200 animate-pulse rounded;
+}
+
+.waman-loading-overlay {
+  @apply fixed inset-0 bg-white/80 backdrop-blur-sm;
+  @apply flex items-center justify-center z-50;
+}
+
+/* Print Styles */
+@media print {
+  .waman-no-print {
+    display: none !important;
+  }
+  
+  .waman-card {
+    @apply shadow-none border border-gray-300;
+  }
+}
