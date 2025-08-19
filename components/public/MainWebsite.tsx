@@ -211,6 +211,13 @@ export const WamanConsultingWebsite: React.FC<WamanConsultingWebsiteProps> = ({ 
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    // Scroll to the top of the window when the page changes
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth' // Optional: for a smooth scrolling effect
+    });
+  }, [currentPage]);
   // Listen for data updates from admin
   useEffect(() => {
     const handleDataUpdate = () => {
