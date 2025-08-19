@@ -1,10 +1,8 @@
-// Path: app\api\admin\[resource]\route.ts
-// Fixed version with better error handling and connection management
-
+// app/api/admin/[resource]/route.ts - Optimized with query performance
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-// Helper function to handle Prisma connection issues
+// Helper function to handle Prisma connection issues with retry logic
 const withRetry = async (operation: () => Promise<any>, retries = 3) => {
   for (let i = 0; i < retries; i++) {
     try {
@@ -18,7 +16,7 @@ const withRetry = async (operation: () => Promise<any>, retries = 3) => {
       if (error.message.includes('prepared statement') || error.message.includes('connection')) {
         try {
           await prisma.$disconnect()
-          await prisma.$connect()
+          await new Promise(resolve => setTimeout(resolve, 100))
         } catch (resetError) {
           console.log('Connection reset failed:', resetError)
         }
@@ -30,120 +28,19 @@ const withRetry = async (operation: () => Promise<any>, retries = 3) => {
   }
 }
 
-// Define model mapping
-const getModel = (resource: string) => {
-  switch (resource) {
-    case 'services': return prisma.service
-    case 'projects': return prisma.project
-    case 'partners': return prisma.partner
-    case 'blog_posts': return prisma.blogPost
-    case 'contacts': return prisma.contact
-    default: return null
-  }
-}
-
-// Field mapping for database compatibility
+// Optimized field mapping for database compatibility
 const mapFields = (resource: string, data: any, toDatabase = false) => {
-  if (resource === 'services') {
-    if (toDatabase) {
-      // Send data to database - use actual database field names
-      const cleanData: any = {
-        titleFr: data.titleFr,
-        titleEn: data.titleEn,
-        descriptionFr: data.descriptionFr,
-        descriptionEn: data.descriptionEn,
-        category: data.category,
-        icon: data.icon,
-        active: data.active ?? true,
-        order: data.serviceOrder ?? 0  // Use 'order' not 'serviceOrder'
-      }
-      
-      // Only add image if it's not empty
-      if (data.image && data.image.trim() !== '') {
-        cleanData.image = data.image
-      }
-      
-      // Only add features if provided
-      if (data.features && Array.isArray(data.features)) {
-        cleanData.features = data.features
-      }
-      
-      return cleanData
-    } else {
-      // Return data from database - convert to frontend format
-      return {
-        id: data.id,
-        titleFr: data.titleFr,
-        titleEn: data.titleEn,
-        descriptionFr: data.descriptionFr,
-        descriptionEn: data.descriptionEn,
-        category: data.category,
-        icon: data.icon,
-        image: data.image,
-        features: data.features,
-        active: data.active,
-        serviceOrder: data.order, // Convert 'order' to 'serviceOrder' for frontend
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
-      }
-    }
-  }
-
-  if (resource === 'projects') {
-    if (toDatabase) {
-      const cleanData: any = {
-        titleFr: data.titleFr,
-        titleEn: data.titleEn,
-        descriptionFr: data.descriptionFr,
-        descriptionEn: data.descriptionEn,
-        client: data.client,
-        year: data.year,
-        status: data.status,
-        featured: data.featured ?? false
-      }
-      
-      // Add optional fields only if they exist
-      if (data.category) cleanData.category = data.category
-      if (data.location) cleanData.location = data.location
-      if (data.budget) cleanData.budget = data.budget
-      if (data.duration) cleanData.duration = data.duration
-      if (data.image && data.image.trim() !== '') cleanData.image = data.image
-      if (data.achievements && Array.isArray(data.achievements)) cleanData.achievements = data.achievements
-      
-      return cleanData
-    } else {
-      return {
-        id: data.id,
-        titleFr: data.titleFr,
-        titleEn: data.titleEn,
-        descriptionFr: data.descriptionFr,
-        descriptionEn: data.descriptionEn,
-        client: data.client,
-        year: data.year,
-        status: data.status,
-        category: data.category,
-        location: data.location,
-        budget: data.budget,
-        duration: data.duration,
-        image: data.image,
-        featured: data.featured,
-        achievements: data.achievements,
-        createdAt: data.createdAt,
-        updatedAt: data.updatedAt
-      }
-    }
-  }
-
+  // For partners resource
   if (resource === 'partners') {
     if (toDatabase) {
       const cleanData: any = {
         name: data.name,
-        logo: data.logo,
         category: data.category,
         active: data.active ?? true,
-        order: data.partnerOrder ?? 0  // Use 'order' not 'partnerOrder'
+        order: data.partnerOrder ?? 0
       }
       
+      if (data.logo && data.logo.trim() !== '') cleanData.logo = data.logo
       if (data.url && data.url.trim() !== '') cleanData.url = data.url
       
       return cleanData
@@ -155,12 +52,13 @@ const mapFields = (resource: string, data: any, toDatabase = false) => {
         category: data.category,
         url: data.url,
         active: data.active,
-        partnerOrder: data.order, // Convert 'order' to 'partnerOrder' for frontend
+        partnerOrder: data.order,
         createdAt: data.createdAt
       }
     }
   }
 
+  // For blog_posts resource
   if (resource === 'blog_posts') {
     if (toDatabase) {
       const cleanData: any = {
@@ -171,7 +69,6 @@ const mapFields = (resource: string, data: any, toDatabase = false) => {
         published: data.published ?? true
       }
       
-      // Add optional fields only if they exist
       if (data.titleEn && data.titleEn.trim() !== '') cleanData.titleEn = data.titleEn
       if (data.author && data.author.trim() !== '') cleanData.author = data.author
       if (data.image && data.image.trim() !== '') cleanData.image = data.image
@@ -194,10 +91,51 @@ const mapFields = (resource: string, data: any, toDatabase = false) => {
     }
   }
 
+  // For projects resource
+  if (resource === 'projects') {
+    if (toDatabase) {
+      const cleanData: any = {
+        titleFr: data.titleFr,
+        descriptionFr: data.descriptionFr,
+        client: data.client,
+        year: data.year,
+        status: data.status,
+        featured: data.featured ?? false
+      }
+      
+      // Add optional fields only if they exist
+      if (data.titleEn && data.titleEn.trim() !== '') cleanData.titleEn = data.titleEn
+      if (data.descriptionEn && data.descriptionEn.trim() !== '') cleanData.descriptionEn = data.descriptionEn
+      if (data.category && data.category.trim() !== '') cleanData.category = data.category
+      if (data.location && data.location.trim() !== '') cleanData.location = data.location
+      if (data.budget && data.budget.trim() !== '') cleanData.budget = data.budget
+      if (data.duration && data.duration.trim() !== '') cleanData.duration = data.duration
+      if (data.image && data.image.trim() !== '') cleanData.image = data.image
+      if (Array.isArray(data.achievements)) cleanData.achievements = data.achievements
+      
+      return cleanData
+    }
+  }
+
+  // For contacts resource
+  if (resource === 'contacts') {
+    if (toDatabase) {
+      return {
+        name: data.name,
+        email: data.email,
+        company: data.company || null,
+        projectType: data.projectType || null,
+        message: data.message,
+        status: data.status || 'nouveau'
+      }
+    }
+  }
+
   // Default case - return as is
   return data
 }
 
+// OPTIMIZED GET REQUEST with selective field fetching
 export async function GET(
   request: NextRequest,
   { params }: { params: { resource: string } }
@@ -209,33 +147,89 @@ export async function GET(
     const operation = async () => {
       let data = null
 
-      // Direct model access with correct field names
+      // Optimized queries with selective field fetching
       switch (resource) {
-        case 'services':
-          data = await prisma.service.findMany({
-            orderBy: { createdAt: 'desc' }
-          })
-          break
         case 'projects':
           data = await prisma.project.findMany({
-            orderBy: { createdAt: 'desc' }
+            select: {
+              id: true,
+              titleFr: true,
+              titleEn: true,
+              descriptionFr: true,
+              descriptionEn: true,
+              client: true,
+              year: true,
+              status: true,
+              category: true,
+              location: true,
+              budget: true,
+              duration: true,
+              image: true,
+              featured: true,
+              achievements: true,
+              createdAt: true,
+              updatedAt: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 100 // Limit to last 100 projects
           })
           break
+
         case 'partners':
           data = await prisma.partner.findMany({
-            orderBy: { createdAt: 'desc' }
+            select: {
+              id: true,
+              name: true,
+              logo: true,
+              category: true,
+              url: true,
+              active: true,
+              order: true,
+              createdAt: true
+            },
+            orderBy: { order: 'asc' },
+            take: 100 // Limit to 100 partners
           })
           break
+
         case 'blog_posts':
           data = await prisma.blogPost.findMany({
-            orderBy: { createdAt: 'desc' }
+            select: {
+              id: true,
+              titleFr: true,
+              titleEn: true,
+              content: true,
+              category: true,
+              author: true,
+              image: true,
+              featured: true,
+              published: true,
+              createdAt: true,
+              updatedAt: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 50 // Limit to last 50 blog posts
           })
           break
+
         case 'contacts':
           data = await prisma.contact.findMany({
-            orderBy: { createdAt: 'desc' }
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              company: true,
+              projectType: true,
+              message: true,
+              status: true,
+              createdAt: true,
+              updatedAt: true
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 200 // Limit to last 200 contacts
           })
           break
+
         default:
           throw new Error(`Invalid resource: ${resource}`)
       }
@@ -252,15 +246,16 @@ export async function GET(
     return NextResponse.json(mappedData)
 
   } catch (error: any) {
-    console.error(`GET Error:`, error)
+    console.error(`GET Error for ${await params.resource}:`, error)
     
     return NextResponse.json({ 
       error: 'Failed to fetch data',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     }, { status: 500 })
   }
 }
 
+// OPTIMIZED POST REQUEST
 export async function POST(
   request: NextRequest,
   { params }: { params: { resource: string } }
@@ -270,7 +265,6 @@ export async function POST(
     const body = await request.json()
     
     console.log(`POST request for resource: ${resource}`)
-    console.log('Request body:', body)
 
     // Map and clean data for database
     const itemData = mapFields(resource, body, true)
@@ -282,30 +276,31 @@ export async function POST(
       }
     })
 
-    console.log('Creating item with data:', itemData)
+    const operation = async () => {
+      let created = null
 
-    let created = null
+      // Direct model access to avoid union type issues
+      switch (resource) {
+        case 'projects':
+          created = await prisma.project.create({ data: itemData })
+          break
+        case 'partners':
+          created = await prisma.partner.create({ data: itemData })
+          break
+        case 'blog_posts':
+          created = await prisma.blogPost.create({ data: itemData })
+          break
+        case 'contacts':
+          created = await prisma.contact.create({ data: itemData })
+          break
+        default:
+          throw new Error(`Invalid resource: ${resource}`)
+      }
 
-    // Direct model access to avoid union type issues
-    switch (resource) {
-      case 'services':
-        created = await prisma.service.create({ data: itemData })
-        break
-      case 'projects':
-        created = await prisma.project.create({ data: itemData })
-        break
-      case 'partners':
-        created = await prisma.partner.create({ data: itemData })
-        break
-      case 'blog_posts':
-        created = await prisma.blogPost.create({ data: itemData })
-        break
-      case 'contacts':
-        created = await prisma.contact.create({ data: itemData })
-        break
-      default:
-        return NextResponse.json({ error: 'Invalid resource' }, { status: 404 })
+      return created
     }
+
+    const created = await withRetry(operation)
 
     // Map back for response
     const response = mapFields(resource, created, false)
@@ -314,14 +309,15 @@ export async function POST(
     return NextResponse.json(response)
 
   } catch (error: any) {
-    console.error(`POST Error:`, error)
+    console.error(`POST Error for ${await params.resource}:`, error)
     return NextResponse.json({ 
       error: 'Failed to create item',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     }, { status: 500 })
   }
 }
 
+// OPTIMIZED PUT REQUEST
 export async function PUT(
   request: NextRequest,
   { params }: { params: { resource: string } }
@@ -331,7 +327,6 @@ export async function PUT(
     const body = await request.json()
     
     console.log(`PUT request for resource: ${resource}`)
-    console.log('Request body:', body)
 
     if (!body.id) {
       return NextResponse.json({ error: 'ID is required for update' }, { status: 400 })
@@ -349,45 +344,43 @@ export async function PUT(
       }
     })
 
-    console.log('Updating item with data:', updateData)
+    const operation = async () => {
+      let updated = null
 
-    let updated = null
+      // Direct model access to avoid union type issues
+      switch (resource) {
+        case 'projects':
+          updated = await prisma.project.update({
+            where: { id: body.id },
+            data: updateData
+          })
+          break
+        case 'partners':
+          updated = await prisma.partner.update({
+            where: { id: body.id },
+            data: updateData
+          })
+          break
+        case 'blog_posts':
+          updated = await prisma.blogPost.update({
+            where: { id: body.id },
+            data: updateData
+          })
+          break
+        case 'contacts':
+          updated = await prisma.contact.update({
+            where: { id: body.id },
+            data: updateData
+          })
+          break
+        default:
+          throw new Error(`Invalid resource: ${resource}`)
+      }
 
-    // Direct model access to avoid union type issues
-    switch (resource) {
-      case 'services':
-        updated = await prisma.service.update({
-          where: { id: body.id },
-          data: updateData
-        })
-        break
-      case 'projects':
-        updated = await prisma.project.update({
-          where: { id: body.id },
-          data: updateData
-        })
-        break
-      case 'partners':
-        updated = await prisma.partner.update({
-          where: { id: body.id },
-          data: updateData
-        })
-        break
-      case 'blog_posts':
-        updated = await prisma.blogPost.update({
-          where: { id: body.id },
-          data: updateData
-        })
-        break
-      case 'contacts':
-        updated = await prisma.contact.update({
-          where: { id: body.id },
-          data: updateData
-        })
-        break
-      default:
-        return NextResponse.json({ error: 'Invalid resource' }, { status: 404 })
+      return updated
     }
+
+    const updated = await withRetry(operation)
 
     // Map back for response
     const response = mapFields(resource, updated, false)
@@ -396,14 +389,15 @@ export async function PUT(
     return NextResponse.json(response)
 
   } catch (error: any) {
-    console.error(`PUT Error:`, error)
+    console.error(`PUT Error for ${await params.resource}:`, error)
     return NextResponse.json({ 
       error: 'Failed to update item',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     }, { status: 500 })
   }
 }
 
+// OPTIMIZED DELETE REQUEST
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { resource: string } }
@@ -421,45 +415,44 @@ export async function DELETE(
 
     const numericId = parseInt(id)
 
-    // Direct model access to avoid union type issues
-    switch (resource) {
-      case 'services':
-        await prisma.service.delete({
-          where: { id: numericId }
-        })
-        break
-      case 'projects':
-        await prisma.project.delete({
-          where: { id: numericId }
-        })
-        break
-      case 'partners':
-        await prisma.partner.delete({
-          where: { id: numericId }
-        })
-        break
-      case 'blog_posts':
-        await prisma.blogPost.delete({
-          where: { id: numericId }
-        })
-        break
-      case 'contacts':
-        await prisma.contact.delete({
-          where: { id: numericId }
-        })
-        break
-      default:
-        return NextResponse.json({ error: 'Invalid resource' }, { status: 404 })
+    const operation = async () => {
+      // Direct model access to avoid union type issues
+      switch (resource) {
+        case 'projects':
+          await prisma.project.delete({
+            where: { id: numericId }
+          })
+          break
+        case 'partners':
+          await prisma.partner.delete({
+            where: { id: numericId }
+          })
+          break
+        case 'blog_posts':
+          await prisma.blogPost.delete({
+            where: { id: numericId }
+          })
+          break
+        case 'contacts':
+          await prisma.contact.delete({
+            where: { id: numericId }
+          })
+          break
+        default:
+          throw new Error(`Invalid resource: ${resource}`)
+      }
     }
+
+    await withRetry(operation)
 
     console.log(`Successfully deleted ${resource} with id:`, id)
     return NextResponse.json({ success: true })
 
   } catch (error: any) {
-    console.error(`DELETE Error:`, error)
+    console.error(`DELETE Error for ${await params.resource}:`, error)
     return NextResponse.json({ 
       error: 'Failed to delete item',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     }, { status: 500 })
   }
 }
